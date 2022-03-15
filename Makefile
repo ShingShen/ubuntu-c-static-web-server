@@ -9,7 +9,7 @@ $(EXEC): $(OBJS)
 
 run: $(EXEC)
 	@echo "Starting Server..."
-	@./$(EXEC) 8181
+	@./$(EXEC) 8080
 
 clean:
 	$(RM) $(OBJS) $(EXEC)
