@@ -18,7 +18,7 @@ $(EXEC): $(OBJS)
 
 run: $(EXEC)
 	@echo "Starting Server..."
-	@./$(EXEC) 7070
+	@./$(EXEC) $(port)
 
 clean:
 	$(RM) $(OBJS) $(EXEC) $(deps)

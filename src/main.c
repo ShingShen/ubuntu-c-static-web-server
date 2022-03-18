@@ -21,10 +21,12 @@ int main(int argc, char *argv[])
     unsigned int clnt_adr_size;
     pthread_t t_id;
 
-    if (argc != 2)
-    {
-        printf("Usage : %s <port>\n", argv[0]);
-        exit(1);
+    uint16_t server_port = 8080;
+    if (argc > 1) {
+        if (sscanf(argv[1], "%u", &server_port) == 0 || server_port > 65535) {
+            fprintf(stderr, "error: invalid command line argument, using default port 8080.\n");
+            server_port = 8080;
+        }
     }
 
     serv_sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -32,22 +34,19 @@ int main(int argc, char *argv[])
     
     serv_adr.sin_family      = AF_INET;
     serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_adr.sin_port        = htons(atoi(argv[1]));
+    serv_adr.sin_port        = htons(server_port);
 
-    if(bind(serv_sock, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) == -1) 
-    {
+    if(bind(serv_sock, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) == -1) {
         fprintf(stderr, "bind() error");
         exit(1);
     }
 
-    if(listen(serv_sock, 20) == -1) 
-    {
+    if(listen(serv_sock, 20) == -1) {
         fprintf(stderr, "listen() error");
         exit(1);
     }
 
-    while(1) 
-    {
+    while(1) {
         clnt_adr_size = sizeof(clnt_adr);
         clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &clnt_adr_size);
         printf("Connection Request : %s:%d\n",
@@ -75,8 +74,7 @@ void *request_handler(void *arg)
     clnt_write = fdopen(dup(clnt_sock), "w");
     fgets(req_line, SMALL_BUF, clnt_read);
 
-    if (strstr(req_line, "HTTP/") == NULL)
-    {
+    if (strstr(req_line, "HTTP/") == NULL) {
         send_error(clnt_write);
         fclose(clnt_read);
         fclose(clnt_write);
@@ -87,8 +85,7 @@ void *request_handler(void *arg)
     strcpy(file_name, strtok(NULL, " /"));
     strcpy(ct, content_type(file_name));
 
-    if (strcmp(method, "GET") != 0)
-    {
+    if (strcmp(method, "GET") != 0) {
         send_error(clnt_write);
         fclose(clnt_read);
         fclose(clnt_write);
@@ -110,8 +107,7 @@ void send_data(FILE *fp, char *ct, char *file_name)
     sprintf(cnt_type, "Content-Type:%s\r\n\r\n", ct);
     send_file = fopen(file_name, "r");
 
-    if (send_file == NULL)
-    {
+    if (send_file == NULL) {
         send_error(fp);
         return;
     }
@@ -121,8 +117,7 @@ void send_data(FILE *fp, char *ct, char *file_name)
     fputs(cnt_type, fp);
 
     // to request data
-    while (fgets(buf, BUF_SIZE, send_file) != NULL)
-    {
+    while (fgets(buf, BUF_SIZE, send_file) != NULL) {
         fputs(buf, fp);
         fflush(fp);
     }
@@ -139,10 +134,11 @@ char *content_type(char *file)
     strtok(file_name, ".");
     strcpy(extension, strtok(NULL, "."));
 
-    if (!strcmp(extension, "html") || !strcmp(extension, "htm"))
+    if (!strcmp(extension, "html") || !strcmp(extension, "htm")) {
         return "text/html";
-    else
+    } else {
         return "text/plain";
+    }
 }
 
 void send_error(FILE *fp)
