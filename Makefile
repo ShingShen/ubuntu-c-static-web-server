@@ -5,7 +5,9 @@ CFLAGS += -D_POSIX_C_SOURCE=199506L
 OUT = bin
 EXEC = $(OUT)/server
 OBJS = \
-	src/main.o
+	src/main.o \
+	src/request.o \
+	src/response.o
 
 deps := $(OBJS:%.o=%.o.d)
 
