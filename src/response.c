@@ -49,8 +49,8 @@ void send_error(FILE *fp)
 {
     char protocol[] = "HTTP/1.0 400 Bad Request\r\n";
     char server[] = "Server:Linux Web Server \r\n";
-    char cnt_len[] = "Content-length:2048\r\n";
-    char cnt_type[] = "Content-type:text/html\r\n\r\n";
+    char cnt_len[] = "Content-Length:2048\r\n";
+    char cnt_type[] = "Content-Type:text/html\r\n\r\n";
     char content[] = "<html><head><title>NETWORK</title></head>"
                      "<body><font size=+5><br>Error！ Please check the file name and request method!"
                      "</font></body></html>";
