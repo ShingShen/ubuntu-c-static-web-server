@@ -3,23 +3,23 @@
 
 void *request_handler(void *arg)
 {
-    int clnt_sock = *((int *)arg);
+    int client_sock = *((int *)arg);
     char req_line[SMALL_BUF];
-    FILE *clnt_read;
-    FILE *clnt_write;
+    FILE *client_read;
+    FILE *client_write;
 
     char method[10];
     char ct[15];
     char file_name[30];
 
-    clnt_read = fdopen(clnt_sock, "r");
-    clnt_write = fdopen(dup(clnt_sock), "w");
-    fgets(req_line, SMALL_BUF, clnt_read);
+    client_read = fdopen(client_sock, "r");
+    client_write = fdopen(dup(client_sock), "w");
+    fgets(req_line, SMALL_BUF, client_read);
 
     if (strstr(req_line, "HTTP/") == NULL) {
-        send_error(clnt_write);
-        fclose(clnt_read);
-        fclose(clnt_write);
+        send_error(client_write);
+        fclose(client_read);
+        fclose(client_write);
         return;
     }
 
@@ -28,12 +28,12 @@ void *request_handler(void *arg)
     strcpy(ct, content_type(file_name));
 
     if (strcmp(method, "GET") != 0) {
-        send_error(clnt_write);
-        fclose(clnt_read);
-        fclose(clnt_write);
+        send_error(client_write);
+        fclose(client_read);
+        fclose(client_write);
         return;
     }
 
-    fclose(clnt_read);
-    send_data(clnt_write, ct, file_name);
+    fclose(client_read);
+    send_data(client_write, ct, file_name);
 }

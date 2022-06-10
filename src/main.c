@@ -8,9 +8,9 @@
 
 int main(int argc, char *argv[]) 
 {
-    int serv_sock, clnt_sock;
-    struct sockaddr_in serv_adr, clnt_adr;
-    unsigned int clnt_adr_size;
+    int server_sock, client_sock;
+    struct sockaddr_in server_addr, client_addr;
+    unsigned int client_addr_size;
     pthread_t t_id;
 
     unsigned int server_port = 8080;
@@ -21,32 +21,32 @@ int main(int argc, char *argv[])
         }
     }
 
-    serv_sock = socket(PF_INET, SOCK_STREAM, 0);
-    memset(&serv_adr, 0, sizeof(serv_adr));
+    server_sock = socket(PF_INET, SOCK_STREAM, 0);
+    memset(&server_addr, 0, sizeof(server_addr));
     
-    serv_adr.sin_family      = AF_INET;
-    serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_adr.sin_port        = htons(server_port);
+    server_addr.sin_family      = AF_INET;
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_port        = htons(server_port);
 
-    if(bind(serv_sock, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) == -1) {
+    if(bind(server_sock, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
         fprintf(stderr, "bind() error");
         exit(1);
     }
 
-    if(listen(serv_sock, 20) == -1) {
+    if(listen(server_sock, 20) == -1) {
         fprintf(stderr, "listen() error");
         exit(1);
     }
 
     while(1) {
-        clnt_adr_size = sizeof(clnt_adr);
-        clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &clnt_adr_size);
+        client_addr_size = sizeof(client_addr);
+        client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_addr_size);
         printf("Connection Request : %s:%d\n",
-               inet_ntoa(clnt_adr.sin_addr), ntohs(clnt_adr.sin_port));
-        pthread_create(&t_id, NULL, request_handler, &clnt_sock);
+               inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        pthread_create(&t_id, NULL, request_handler, &client_sock);
         pthread_detach(t_id);
     }
 
-    close(serv_sock);
+    close(server_sock);
     return 0;
 }
